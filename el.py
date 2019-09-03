@@ -8,7 +8,7 @@ from random import choice
 from itertools import groupby
 from gensim.models import Word2Vec
 import pyhanlp
-from nlp_zero import Trie, DAG
+from nlp_zero import Trie, DAG # pip install nlp_zero
 import copy, re
 
 
@@ -27,6 +27,9 @@ word2vec = np.concatenate([np.zeros((1, word_size)), word2vec])
 
 
 def tokenize(s):
+    """如果pyhanlp不好用，自己修改tokenize函数，
+    换成自己的分词工具即可。
+    """
     return [i.word for i in pyhanlp.HanLP.segment(s)]
 
 
@@ -56,7 +59,7 @@ with open('../ccks2019_el/kb_data') as (f):
         )
         object_regex = sorted(object_regex, key=lambda s: -len(s))
         object_regex = [re.escape(i) for i in object_regex]
-        object_regex = re.compile('|'.join(object_regex))
+        object_regex = re.compile('|'.join(object_regex)) # 预先建立正则表达式，用来识别object是否在query出现过
         _['data'].append({
             'predicate': u'名称',
             'object': u'、'.join(subject_alias)
@@ -73,7 +76,7 @@ with open('../ccks2019_el/kb_data') as (f):
 
 
 kb2id = {}
-trie = Trie()
+trie = Trie() # 根据知识库所有实体来构建Trie树
 
 for i, j in id2kb.items():
     for k in j['subject_alias']:
@@ -84,6 +87,8 @@ for i, j in id2kb.items():
 
 
 def search_subjects(text_in):
+    """实现最大匹配算法
+    """
     R = trie.search(text_in)
     dag = DAG(len(text_in))
     for i, j in R:
@@ -125,6 +130,7 @@ else:
     id2char, char2id = json.load(open('../all_chars_me.json'))
 
 
+# 通过统计来精简词典，提高最大匹配的准确率
 words_to_pred = {}
 words_to_remove = {}
 A, B, C = 1e-10, 1e-10, 1e-10
@@ -452,8 +458,8 @@ x1 = MyBidirectional(CuDNNLSTM(char_size // 2, return_sequences=True))([x1, x1_m
 h = Conv1D(char_size, 3, activation='relu', padding='same')(x1)
 ps1 = Dense(1, activation='sigmoid')(h)
 ps2 = Dense(1, activation='sigmoid')(h)
-ps1 = Lambda(lambda x: x[0] * x[1])([ps1, pres1])
-ps2 = Lambda(lambda x: x[0] * x[1])([ps2, pres2])
+ps1 = Lambda(lambda x: x[0] * x[1])([ps1, pres1]) # 这样一乘，相当于只从最大匹配的结果中筛选实体
+ps2 = Lambda(lambda x: x[0] * x[1])([ps2, pres2]) # 这样一乘，相当于只从最大匹配的结果中筛选实体
 
 s_model = Model([x1_in, x1v_in, pres1_in, pres2_in], [ps1, ps2])
 
