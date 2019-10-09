@@ -9,7 +9,7 @@ from itertools import groupby
 from gensim.models import Word2Vec
 import pyhanlp
 from nlp_zero import Trie, DAG # pip install nlp_zero
-import copy, re
+import re
 
 
 mode = 0
@@ -400,8 +400,8 @@ class MyBidirectional:
     """自己封装双向RNN，允许传入mask，保证对齐
     """
     def __init__(self, layer):
-        self.forward_layer = copy.copy(layer)
-        self.backward_layer = copy.copy(layer)
+        self.forward_layer = layer.__class__.from_config(layer.get_config())
+        self.backward_layer = layer.__class__.from_config(layer.get_config())
         self.forward_layer.name = 'forward_' + self.forward_layer.name
         self.backward_layer.name = 'backward_' + self.backward_layer.name
     def reverse_sequence(self, inputs):
