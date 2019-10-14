@@ -10,3 +10,6 @@ Python 2.7 + Keras 2.2.4 + Tensorflow 1.8，其中关系最大的应该是Python
 
 ## 详细介绍
 https://kexue.fm/archives/6919
+
+## 交流
+QQ交流群：67729435，微信群请加机器人微信号spaces_ac_cn
